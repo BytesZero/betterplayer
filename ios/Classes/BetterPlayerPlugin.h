@@ -10,11 +10,13 @@
 #import "BetterPlayerTimeUtils.h"
 #import "BetterPlayer.h"
 #import <MediaPlayer/MediaPlayer.h>
+#import "FVPVideoPlayerPlugin_Test.h"
 
 @interface BetterPlayerPlugin : NSObject <FlutterPlugin, FlutterPlatformViewFactory>
 
 @property(readonly, weak, nonatomic) NSObject<FlutterBinaryMessenger>* messenger;
 @property(readonly, strong, nonatomic) NSMutableDictionary* players;
 @property(readonly, strong, nonatomic) NSObject<FlutterPluginRegistrar>* registrar;
+@property(nonatomic, strong) id<FVPPlayerFactory> playerFactory;
 
 @end

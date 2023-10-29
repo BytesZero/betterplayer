@@ -4,6 +4,7 @@
 
 // Dart imports:
 import 'dart:async';
+import 'dart:io';
 
 // Flutter imports:
 import 'package:better_player/src/configuration/better_player_buffering_configuration.dart';
@@ -82,7 +83,7 @@ abstract class VideoPlayerPlatform {
   }
 
   /// Set data source of video.
-  Future<void> setDataSource(int? textureId, DataSource dataSource) {
+  Future<int?> setDataSource(int? textureId, DataSource dataSource) {
     throw UnimplementedError('setDataSource() has not been implemented.');
   }
 
@@ -271,7 +272,7 @@ class DataSource {
   /// [DataSourceType.asset] videos.
   final String? package;
 
-  final Map<String, String?>? headers;
+  final Map<String, String>? headers;
 
   final bool useCache;
 
@@ -379,6 +380,7 @@ class VideoEvent {
     this.size,
     this.buffered,
     this.position,
+    this.isPlaying,
   });
 
   /// The type of the event.
@@ -406,6 +408,11 @@ class VideoEvent {
 
   ///Seek position
   final Duration? position;
+
+  /// Whether the video is currently playing.
+  ///
+  /// Only used if [eventType] is [VideoEventType.isPlayingStateUpdate].
+  final bool? isPlaying;
 
   @override
   bool operator ==(Object other) {
@@ -446,6 +453,8 @@ enum VideoEventType {
 
   /// The video stopped to buffer.
   bufferingEnd,
+
+  isPlayingStateUpdate,
 
   /// The video is set to play
   play,

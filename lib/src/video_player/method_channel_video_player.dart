@@ -7,6 +7,7 @@ import 'package:better_player/src/core/better_player_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'avfoundation_video_player.dart';
 import 'video_player_platform_interface.dart';
 
 const MethodChannel _channel = MethodChannel('better_player_channel');
@@ -53,7 +54,7 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
   }
 
   @override
-  Future<void> setDataSource(int? textureId, DataSource dataSource) async {
+  Future<int?> setDataSource(int? textureId, DataSource dataSource) async {
     Map<String, dynamic>? dataSourceDescription;
     switch (dataSource.sourceType) {
       case DataSourceType.asset:
@@ -122,7 +123,7 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
         'dataSource': dataSourceDescription,
       },
     );
-    return;
+    return textureId;
   }
 
   @override
@@ -420,15 +421,15 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Widget buildView(int? textureId) {
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      return UiKitView(
-        viewType: 'com.jhomlala/better_player',
-        creationParamsCodec: const StandardMessageCodec(),
-        creationParams: {'textureId': textureId!},
-      );
-    } else {
-      return Texture(textureId: textureId!);
-    }
+    // if (defaultTargetPlatform == TargetPlatform.iOS) {
+    //   return UiKitView(
+    //     viewType: 'com.jhomlala/better_player',
+    //     creationParamsCodec: const StandardMessageCodec(),
+    //     creationParams: {'textureId': textureId!},
+    //   );
+    // } else {
+    // }
+    return Texture(textureId: textureId!);
   }
 
   EventChannel _eventChannelFor(int? textureId) {

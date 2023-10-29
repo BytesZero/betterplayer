@@ -1221,7 +1221,7 @@ class BetterPlayerController {
 
   ///Build headers map that will be used to setup video player controller. Apply
   ///DRM headers if available.
-  Map<String, String?> _getHeaders() {
+  Map<String, String> _getHeaders() {
     final headers = betterPlayerDataSource!.headers ?? {};
     if (betterPlayerDataSource?.drmConfiguration?.drmType ==
             BetterPlayerDrmType.token &&
