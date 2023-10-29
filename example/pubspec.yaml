@@ -4,11 +4,15 @@ version: 1.0.0+1
 publish_to: none
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   better_player:
+    # path: plugins/betterplayer
     path: ../
+    # git:
+    #   url: git@github.com:yy1300326388/betterplayer.git
+    #   ref: 0.1.0
   flutter:
     sdk: flutter
   flutter_localizations:
