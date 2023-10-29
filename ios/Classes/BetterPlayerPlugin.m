@@ -10,16 +10,6 @@
 #endif
 
 
-@interface BPDefaultPlayerFactory : NSObject <FVPPlayerFactory>
-@end
-
-@implementation BPDefaultPlayerFactory
-- (AVPlayer *)playerWithPlayerItem:(AVPlayerItem *)playerItem {
-  return [AVPlayer playerWithPlayerItem:playerItem];
-}
-
-@end
-
 
 @implementation BetterPlayerPlugin
 NSMutableDictionary* _dataSourceDict;
@@ -47,7 +37,6 @@ bool _remoteCommandsInitialized = false;
     NSAssert(self, @"super init cannot be nil");
     _messenger = [registrar messenger];
     _registrar = registrar;
-    _playerFactory= [[BPDefaultPlayerFactory alloc] init];
     _players = [NSMutableDictionary dictionaryWithCapacity:1];
     _timeObserverIdDict = [NSMutableDictionary dictionary];
     _artworkImageDict = [NSMutableDictionary dictionary];

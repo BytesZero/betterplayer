@@ -23,6 +23,7 @@ dependencies:
   collection: ^1.16.0
   xml: ^6.1.0
   video_player_platform_interface: ">=6.1.0 <7.0.0"
+  video_player_avfoundation: ^2.5.0
 
 dev_dependencies:
   lint: ^1.8.2
@@ -37,5 +38,6 @@ flutter:
       android:
         package: com.jhomlala.better_player
         pluginClass: BetterPlayerPlugin
-      ios:
-        pluginClass: FVPVideoPlayerPlugin
+      # ios:
+      #   pluginClass: FVPVideoPlayerPlugin
+        # sharedDarwinSource: true
