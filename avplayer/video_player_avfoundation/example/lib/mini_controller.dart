@@ -374,30 +374,23 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
   void _updatePosition(Duration position) {
     value = value.copyWith(position: position);
   }
-
-  /// Set looping
-  Future<void> setLooping(bool looping) async {
-    await _platform.setLooping(_textureId, looping);
-  }
-
-  
 }
 
 /// Widget that displays the video controlled by [controller].
-class MiniVideoPlayer extends StatefulWidget {
+class VideoPlayer extends StatefulWidget {
   /// Uses the given [controller] for all video rendered in this widget.
-  const MiniVideoPlayer(this.controller, {Key? key});
+  const VideoPlayer(this.controller, {super.key});
 
   /// The [MiniController] responsible for the video being rendered in
   /// this widget.
   final MiniController controller;
 
   @override
-  State<MiniVideoPlayer> createState() => _MiniVideoPlayerState();
+  State<VideoPlayer> createState() => _VideoPlayerState();
 }
 
-class _MiniVideoPlayerState extends State<MiniVideoPlayer> {
-  _MiniVideoPlayerState() {
+class _VideoPlayerState extends State<VideoPlayer> {
+  _VideoPlayerState() {
     _listener = () {
       final int newTextureId = widget.controller.textureId;
       if (newTextureId != _textureId) {
@@ -422,7 +415,7 @@ class _MiniVideoPlayerState extends State<MiniVideoPlayer> {
   }
 
   @override
-  void didUpdateWidget(MiniVideoPlayer oldWidget) {
+  void didUpdateWidget(VideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
     oldWidget.controller.removeListener(_listener);
     _textureId = widget.controller.textureId;
@@ -443,8 +436,8 @@ class _MiniVideoPlayerState extends State<MiniVideoPlayer> {
   }
 }
 
-class VideoScrubber extends StatefulWidget {
-  const VideoScrubber({
+class _VideoScrubber extends StatefulWidget {
+  const _VideoScrubber({
     required this.child,
     required this.controller,
   });
@@ -456,7 +449,7 @@ class VideoScrubber extends StatefulWidget {
   _VideoScrubberState createState() => _VideoScrubberState();
 }
 
-class _VideoScrubberState extends State<VideoScrubber> {
+class _VideoScrubberState extends State<_VideoScrubber> {
   MiniController get controller => widget.controller;
 
   @override
@@ -485,7 +478,7 @@ class _VideoScrubberState extends State<VideoScrubber> {
 class VideoProgressIndicator extends StatefulWidget {
   /// Construct an instance that displays the play/buffering status of the video
   /// controlled by [controller].
-  const VideoProgressIndicator(this.controller, {Key? key});
+  const VideoProgressIndicator(this.controller, {super.key});
 
   /// The [MiniController] that actually associates a video with this
   /// widget.
@@ -560,7 +553,7 @@ class _VideoProgressIndicatorState extends State<VideoProgressIndicator> {
         backgroundColor: backgroundColor,
       );
     }
-    return VideoScrubber(
+    return _VideoScrubber(
       controller: controller,
       child: Padding(
         padding: const EdgeInsets.only(top: 5.0),
