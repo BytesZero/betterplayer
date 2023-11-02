@@ -1,11 +1,12 @@
 name: better_player
 description: Advanced video player based on video_player and Chewie. It's solves many typical use cases and it's easy to run.
-version: 0.1.0
+version: 0.2.0
 # Disabled because of warning from analyzer
 # authors:
 #  - Jakub Homlala <jhomlala@gmail.com>
 homepage: https://github.com/jhomlala/betterplayer
 documentation: https://jhomlala.github.io/betterplayer/
+publish_to: none
 
 environment:
   sdk: ">=2.14.0 <3.0.0"
@@ -22,7 +23,6 @@ dependencies:
   path_provider: ^2.0.10
   collection: ^1.16.0
   xml: ^6.1.0
-  video_player_platform_interface: ">=6.1.0 <7.0.0"
   video_player_avfoundation:
     path: avplayer/video_player_avfoundation
 
@@ -41,4 +41,4 @@ flutter:
         pluginClass: BetterPlayerPlugin
       # ios:
       #   pluginClass: FVPVideoPlayerPlugin
-        # sharedDarwinSource: true
+      # sharedDarwinSource: true
