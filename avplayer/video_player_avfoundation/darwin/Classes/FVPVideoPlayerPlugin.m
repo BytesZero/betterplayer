@@ -729,13 +729,9 @@ NS_INLINE CGFloat radiansToDegrees(CGFloat radians) {
 
 - (void)disablePictureInPicture{
     [self setPictureInPicture:true];
-//    if (__playerLayer){
-//        [self.playerLayer removeFromSuperlayer];
-//        self.playerLayer = nil;
-//        if (_eventSink != nil) {
-//            _eventSink(@{@"event" : @"pipStop"});
-//        }
-//    }
+    if (self.playerLayer){
+        [self.playerLayer removeFromSuperlayer];
+    }
 }
 
 - (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)pictureInPictureController  API_AVAILABLE(ios(9.0)){
