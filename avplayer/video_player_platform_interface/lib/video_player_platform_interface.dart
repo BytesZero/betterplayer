@@ -121,7 +121,7 @@ abstract class VideoPlayerPlatform extends PlatformInterface {
         'disablePictureInPicture() has not been implemented.');
   }
 
-  Future<bool?> isPictureInPictureEnabled(int textureId) {
+  Future<bool> isPictureInPictureEnabled(int textureId) {
     throw UnimplementedError(
         'isPictureInPictureEnabled() has not been implemented.');
   }

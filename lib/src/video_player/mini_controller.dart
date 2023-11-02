@@ -380,13 +380,53 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     await _platform.setLooping(_textureId, looping);
   }
 
-  
+  /// 开启小窗
+  Future<void> enablePictureInPicture(GlobalKey playerKey) async {
+    final bool isPipSupported = await isPictureInPictureEnabled();
+
+    if (isPipSupported) {
+      if (Platform.isIOS) {
+        final RenderBox? renderBox =
+            playerKey.currentContext!.findRenderObject() as RenderBox?;
+        if (renderBox == null) {
+          print(
+              "Can't show PiP. RenderBox is null. Did you provide valid global"
+              " key?");
+          return;
+        }
+        final Offset position = renderBox.localToGlobal(Offset.zero);
+        await _platform.enablePictureInPicture(
+          _textureId,
+          position.dx,
+          position.dy,
+          renderBox.size.width,
+          renderBox.size.height,
+        );
+      } else {
+        print("Unsupported PiP in current platform.");
+      }
+    } else {
+      print("Picture in picture is not supported in this device. If you're "
+          "using Android, please check if you're using activity v2 "
+          "embedding.");
+    }
+  }
+
+  /// 关闭小窗
+  Future<void> disablePictureInPicture() async {
+    await _platform.disablePictureInPicture(_textureId);
+  }
+
+  /// 是否支持小窗
+  Future<bool> isPictureInPictureEnabled() async {
+    return _platform.isPictureInPictureEnabled(_textureId);
+  }
 }
 
 /// Widget that displays the video controlled by [controller].
 class MiniVideoPlayer extends StatefulWidget {
   /// Uses the given [controller] for all video rendered in this widget.
-  const MiniVideoPlayer(this.controller, {Key? key});
+  const MiniVideoPlayer({Key? key, required this.controller}) : super(key: key);
 
   /// The [MiniController] responsible for the video being rendered in
   /// this widget.

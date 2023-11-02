@@ -11,12 +11,11 @@ class NormalPlayerPage extends StatefulWidget {
 
 class _NormalPlayerPageState extends State<NormalPlayerPage> {
   late MiniController _controller;
+  GlobalKey _playerKey = GlobalKey();
 
   @override
   void initState() {
-    _controller = MiniController.network(
-      Constants.forBiggerBlazesUrl,
-    );
+    _controller = MiniController.network(Constants.forBiggerBlazesUrl);
 
     _controller.addListener(() {
       setState(() {});
@@ -47,8 +46,16 @@ class _NormalPlayerPageState extends State<NormalPlayerPage> {
               child: Stack(
                 alignment: Alignment.bottomCenter,
                 children: <Widget>[
-                  MiniVideoPlayer(_controller),
-                  _ControlsOverlay(controller: _controller),
+                  MiniVideoPlayer(
+                    key: _playerKey,
+                    controller: _controller,
+                  ),
+                  _ControlsOverlay(
+                    controller: _controller,
+                    onPicTap: () {
+                      _controller.enablePictureInPicture(_playerKey);
+                    },
+                  ),
                   VideoProgressIndicator(_controller),
                 ],
               ),
@@ -150,7 +157,7 @@ class _VideoProgressIndicatorState extends State<VideoProgressIndicator> {
 }
 
 class _ControlsOverlay extends StatelessWidget {
-  const _ControlsOverlay({required this.controller});
+  const _ControlsOverlay({required this.controller, required this.onPicTap});
 
   static const List<double> _examplePlaybackRates = <double>[
     0.25,
@@ -164,6 +171,7 @@ class _ControlsOverlay extends StatelessWidget {
   ];
 
   final MiniController controller;
+  final VoidCallback onPicTap;
 
   @override
   Widget build(BuildContext context) {
@@ -224,6 +232,16 @@ class _ControlsOverlay extends StatelessWidget {
             ),
           ),
         ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: IconButton(
+            icon: Icon(
+              Icons.window,
+              color: Colors.white,
+            ),
+            onPressed: onPicTap,
+          ),
+        )
       ],
     );
   }

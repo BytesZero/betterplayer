@@ -5,8 +5,10 @@
 #import "FVPVideoPlayerPlugin.h"
 #import "FVPVideoPlayerPlugin_Test.h"
 
+#import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <GLKit/GLKit.h>
+
 
 #import "AVAssetTrackUtils.h"
 #import "messages.g.h"
@@ -71,7 +73,14 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 @end
 
-@interface FVPVideoPlayer : NSObject <FlutterTexture, FlutterStreamHandler>
+
+#if TARGET_OS_IOS
+void (^__strong _Nonnull _restoreUserInterfaceForPIPStopCompletionHandler)(BOOL);
+API_AVAILABLE(ios(9.0))
+AVPictureInPictureController *_pipController;
+#endif
+
+@interface FVPVideoPlayer : NSObject <FlutterTexture, FlutterStreamHandler,AVPictureInPictureControllerDelegate>
 @property(readonly, nonatomic) AVPlayer *player;
 @property(readonly, nonatomic) AVPlayerItemVideoOutput *videoOutput;
 // This is to fix 2 bugs: 1. blank video for encrypted video streams on iOS 16
@@ -80,6 +89,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 // An invisible AVPlayerLayer is used to overwrite the protection of pixel buffers in those streams
 // for issue #1, and restore the correct width and height for issue #2.
 @property(readonly, nonatomic) AVPlayerLayer *playerLayer;
+@property(nonatomic) bool _pictureInPicture;
 // The plugin registrar, to obtain view information from.
 @property(nonatomic, weak) NSObject<FlutterPluginRegistrar> *registrar;
 // The CALayer associated with the Flutter view this plugin is associated with, if any.
@@ -651,6 +661,110 @@ NS_INLINE CGFloat radiansToDegrees(CGFloat radians) {
   [_player removeObserver:self forKeyPath:@"rate"];
 }
 
+
+- (void)setPictureInPicture:(BOOL)pictureInPicture
+{
+    self._pictureInPicture = pictureInPicture;
+    if (@available(iOS 9.0, *)) {
+        if (_pipController && self._pictureInPicture && ![_pipController isPictureInPictureActive]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [_pipController startPictureInPicture];
+            });
+        } else if (_pipController && !self._pictureInPicture && [_pipController isPictureInPictureActive]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [_pipController stopPictureInPicture];
+            });
+        } else {
+            // Fallback on earlier versions
+        } }
+}
+
+#if TARGET_OS_IOS
+- (void)setRestoreUserInterfaceForPIPStopCompletionHandler:(BOOL)restore
+{
+    if (_restoreUserInterfaceForPIPStopCompletionHandler != NULL) {
+        _restoreUserInterfaceForPIPStopCompletionHandler(restore);
+        _restoreUserInterfaceForPIPStopCompletionHandler = NULL;
+    }
+}
+
+- (void)setupPipController {
+    if (@available(iOS 9.0, *)) {
+        [[AVAudioSession sharedInstance] setActive: YES error: nil];
+        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+        if (!_pipController && self.playerLayer && [AVPictureInPictureController isPictureInPictureSupported]) {
+            _pipController = [[AVPictureInPictureController alloc] initWithPlayerLayer:self.playerLayer];
+            _pipController.delegate = self;
+        }
+    } else {
+        // Fallback on earlier versions
+    }
+}
+
+- (void) enablePictureInPicture: (CGRect) frame{
+    [self disablePictureInPicture];
+    [self usePlayerLayer:frame];
+}
+
+- (void)usePlayerLayer: (CGRect) frame
+{
+    if( _player )
+    {
+        // Create new controller passing reference to the AVPlayerLayer
+//        _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
+        UIViewController* vc = [[[UIApplication sharedApplication] keyWindow] rootViewController];
+        self.playerLayer.frame = frame;
+        self.playerLayer.needsDisplayOnBoundsChange = YES;
+        //  [self._playerLayer addObserver:self forKeyPath:readyForDisplayKeyPath options:NSKeyValueObservingOptionNew context:nil];
+        [vc.view.layer addSublayer:self.playerLayer];
+        vc.view.layer.needsDisplayOnBoundsChange = YES;
+        _pipController = NULL;
+        [self setupPipController];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+            [self setPictureInPicture:true];
+        });
+    }
+}
+
+- (void)disablePictureInPicture{
+    [self setPictureInPicture:true];
+//    if (__playerLayer){
+//        [self.playerLayer removeFromSuperlayer];
+//        self.playerLayer = nil;
+//        if (_eventSink != nil) {
+//            _eventSink(@{@"event" : @"pipStop"});
+//        }
+//    }
+}
+
+- (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)pictureInPictureController  API_AVAILABLE(ios(9.0)){
+    [self disablePictureInPicture];
+}
+
+- (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)pictureInPictureController  API_AVAILABLE(ios(9.0)){
+    if (_eventSink != nil) {
+        _eventSink(@{@"event" : @"pipStart"});
+    }
+}
+
+- (void)pictureInPictureControllerWillStopPictureInPicture:(AVPictureInPictureController *)pictureInPictureController  API_AVAILABLE(ios(9.0)){
+
+}
+
+- (void)pictureInPictureControllerWillStartPictureInPicture:(AVPictureInPictureController *)pictureInPictureController {
+
+}
+
+- (void)pictureInPictureController:(AVPictureInPictureController *)pictureInPictureController failedToStartPictureInPictureWithError:(NSError *)error {
+
+}
+
+- (void)pictureInPictureController:(AVPictureInPictureController *)pictureInPictureController restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:(void (^)(BOOL))completionHandler {
+    [self setRestoreUserInterfaceForPIPStopCompletionHandler: true];
+}
+#endif
+
 @end
 
 @interface FVPVideoPlayerPlugin () <FVPAVFoundationVideoPlayerApi>
@@ -843,16 +957,23 @@ NS_INLINE CGFloat radiansToDegrees(CGFloat radians) {
 
 - (void)enablePictureInPicture:(FVPPictureMessage *)input error:(FlutterError *_Nullable *_Nonnull)error{
     NSLog(@"FVPVideoPlayerPlugin enablePictureInPicture");
+    FVPVideoPlayer *player = self.playersByTextureId[input.textureId];
+    [player enablePictureInPicture:CGRectMake([input.left doubleValue], [input.top doubleValue], [input.width doubleValue], [input.height doubleValue])];
 }
 
 - (void)disablePictureInPicture:(FVPTextureMessage *)input error:(FlutterError *_Nullable *_Nonnull)error{
     NSLog(@"FVPVideoPlayerPlugin disablePictureInPicture");
+    FVPVideoPlayer *player = self.playersByTextureId[input.textureId];
+    [player disablePictureInPicture];
+    [player setPictureInPicture:false];
 }
 
 - (FVPPictureValMessage *)isPictureInPictureEnabled:(FVPTextureMessage *)input error:(FlutterError **)error{
     NSLog(@"FVPVideoPlayerPlugin isPictureInPictureEnabled");
-//    FVPVideoPlayer *player = self.playersByTextureId[input.textureId];
-    FVPPictureValMessage *result = [FVPPictureValMessage makeWithTextureId:input.textureId isEnable:@(YES)];
+    FVPPictureValMessage *result = [FVPPictureValMessage makeWithTextureId:input.textureId isEnable:[NSNumber numberWithBool:false]];
+    if ([AVPictureInPictureController isPictureInPictureSupported]){
+        result = [FVPPictureValMessage makeWithTextureId:input.textureId isEnable:[NSNumber numberWithBool:true]];
+    }
     return result;
 }
 
