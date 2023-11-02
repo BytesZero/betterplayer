@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class FVPPositionMessage;
 @class FVPCreateMessage;
 @class FVPMixWithOthersMessage;
+@class FVPPictureMessage;
+@class FVPPictureValMessage;
 
 @interface FVPTextureMessage : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
@@ -82,6 +84,29 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSNumber *mixWithOthers;
 @end
 
+@interface FVPPictureMessage : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithTextureId:(NSNumber *)textureId
+                             left:(NSNumber *)left
+                              top:(NSNumber *)top
+                            width:(NSNumber *)width
+                           height:(NSNumber *)height;
+@property(nonatomic, strong) NSNumber *textureId;
+@property(nonatomic, strong) NSNumber *left;
+@property(nonatomic, strong) NSNumber *top;
+@property(nonatomic, strong) NSNumber *width;
+@property(nonatomic, strong) NSNumber *height;
+@end
+
+@interface FVPPictureValMessage : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithTextureId:(NSNumber *)textureId isEnable:(NSNumber *)isEnable;
+@property(nonatomic, strong) NSNumber *textureId;
+@property(nonatomic, strong) NSNumber *isEnable;
+@end
+
 /// The codec used by FVPAVFoundationVideoPlayerApi.
 NSObject<FlutterMessageCodec> *FVPAVFoundationVideoPlayerApiGetCodec(void);
 
@@ -103,6 +128,9 @@ NSObject<FlutterMessageCodec> *FVPAVFoundationVideoPlayerApiGetCodec(void);
 - (void)pause:(FVPTextureMessage *)msg error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setMixWithOthers:(FVPMixWithOthersMessage *)msg
                    error:(FlutterError *_Nullable *_Nonnull)error;
+- (void)enablePictureInPicture:(FVPPictureMessage *)msg error:(FlutterError *_Nullable *_Nonnull)error;
+- (void)disablePictureInPicture:(FVPTextureMessage *)msg error:(FlutterError *_Nullable *_Nonnull)error;
+- (nullable FVPPictureValMessage *)isPictureInPictureEnabled:(FVPTextureMessage *)msg error:(FlutterError *_Nullable *_Nonnull)error;
 @end
 
 extern void FVPAVFoundationVideoPlayerApiSetup(

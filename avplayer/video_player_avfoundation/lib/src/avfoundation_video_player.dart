@@ -168,6 +168,29 @@ class AVFoundationVideoPlayer extends VideoPlayerPlatform {
         .setMixWithOthers(MixWithOthersMessage(mixWithOthers: mixWithOthers));
   }
 
+  @override
+  Future<void> enablePictureInPicture(
+      int textureId, double top, double left, double width, double height) {
+    return _api.enablePictureInPicture(PictureMessage(
+        textureId: textureId,
+        left: left,
+        top: top,
+        width: width,
+        height: height));
+  }
+
+  @override
+  Future<void> disablePictureInPicture(int textureId) {
+    return _api.disablePictureInPicture(TextureMessage(textureId: textureId));
+  }
+
+  @override
+  Future<bool> isPictureInPictureEnabled(int textureId) async {
+    PictureValMessage pictureVal = await _api
+        .isPictureInPictureEnabled(TextureMessage(textureId: textureId));
+    return pictureVal.isEnable;
+  }
+
   EventChannel _eventChannelFor(int textureId) {
     return EventChannel('flutter.io/videoPlayer/videoEvents$textureId');
   }

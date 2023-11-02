@@ -841,4 +841,19 @@ NS_INLINE CGFloat radiansToDegrees(CGFloat radians) {
 #endif
 }
 
+- (void)enablePictureInPicture:(FVPPictureMessage *)input error:(FlutterError *_Nullable *_Nonnull)error{
+    NSLog(@"FVPVideoPlayerPlugin enablePictureInPicture");
+}
+
+- (void)disablePictureInPicture:(FVPTextureMessage *)input error:(FlutterError *_Nullable *_Nonnull)error{
+    NSLog(@"FVPVideoPlayerPlugin disablePictureInPicture");
+}
+
+- (FVPPictureValMessage *)isPictureInPictureEnabled:(FVPTextureMessage *)input error:(FlutterError **)error{
+    NSLog(@"FVPVideoPlayerPlugin isPictureInPictureEnabled");
+//    FVPVideoPlayer *player = self.playersByTextureId[input.textureId];
+    FVPPictureValMessage *result = [FVPPictureValMessage makeWithTextureId:input.textureId isEnable:@(YES)];
+    return result;
+}
+
 @end

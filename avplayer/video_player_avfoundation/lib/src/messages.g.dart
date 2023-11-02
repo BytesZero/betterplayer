@@ -199,6 +199,70 @@ class MixWithOthersMessage {
   }
 }
 
+class PictureMessage {
+  PictureMessage({
+    required this.textureId,
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+  });
+
+  int textureId;
+
+  double left;
+  double top;
+  double width;
+  double height;
+
+  Object encode() {
+    return <Object?>[
+      textureId,
+      left,
+      top,
+      width,
+      height,
+    ];
+  }
+
+  static PictureMessage decode(Object result) {
+    result as List<Object?>;
+    return PictureMessage(
+      textureId: result[0]! as int,
+      left: result[1]! as double,
+      top: result[2]! as double,
+      width: result[3]! as double,
+      height: result[4]! as double,
+    );
+  }
+}
+
+class PictureValMessage {
+  PictureValMessage({
+    required this.textureId,
+    required this.isEnable,
+  });
+
+  int textureId;
+
+  bool isEnable;
+
+  Object encode() {
+    return <Object?>[
+      textureId,
+      isEnable,
+    ];
+  }
+
+  static PictureValMessage decode(Object result) {
+    result as List<Object?>;
+    return PictureValMessage(
+      textureId: result[0]! as int,
+      isEnable: result[1]! as bool,
+    );
+  }
+}
+
 class _AVFoundationVideoPlayerApiCodec extends StandardMessageCodec {
   const _AVFoundationVideoPlayerApiCodec();
   @override
@@ -224,6 +288,12 @@ class _AVFoundationVideoPlayerApiCodec extends StandardMessageCodec {
     } else if (value is VolumeMessage) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
+    } else if (value is PictureMessage) {
+      buffer.putUint8(135);
+      writeValue(buffer, value.encode());
+    } else if (value is PictureValMessage) {
+      buffer.putUint8(136);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -246,6 +316,10 @@ class _AVFoundationVideoPlayerApiCodec extends StandardMessageCodec {
         return TextureMessage.decode(readValue(buffer)!);
       case 134:
         return VolumeMessage.decode(readValue(buffer)!);
+      case 135:
+        return PictureMessage.decode(readValue(buffer)!);
+      case 136:
+        return PictureValMessage.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -521,6 +595,81 @@ class AVFoundationVideoPlayerApi {
       );
     } else {
       return;
+    }
+  }
+
+  Future<void> enablePictureInPicture(PictureMessage arg_msg) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.video_player_avfoundation.AVFoundationVideoPlayerApi.enablePictureInPicture',
+        codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_msg]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> disablePictureInPicture(TextureMessage arg_msg) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.video_player_avfoundation.AVFoundationVideoPlayerApi.disablePictureInPicture',
+        codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_msg]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<PictureValMessage> isPictureInPictureEnabled(
+      TextureMessage arg_msg) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.video_player_avfoundation.AVFoundationVideoPlayerApi.isPictureInPictureEnabled',
+        codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_msg]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else if (replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyList[0] as PictureValMessage?)!;
     }
   }
 }
