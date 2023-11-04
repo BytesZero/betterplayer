@@ -363,6 +363,19 @@ class MiniController extends ValueNotifier<VideoPlayerValue> {
     }
     await _platform.seekTo(_textureId, position);
     _updatePosition(position);
+    await delayedSetSpeed();
+  }
+  /// 修复调整进度后倍速没有保持的问题
+  Future<void> delayedSetSpeed() async {
+    if (!value.isBuffering) {
+      setPlaybackSpeed(value.playbackSpeed);
+    } else {
+      await Future.delayed(Duration(milliseconds: 200), () {
+        print(
+            "seekTo 2 isPlaying:${value.isPlaying} isBuffering:${value.isBuffering}  playbackSpeed:${value.playbackSpeed} ");
+        delayedSetSpeed();
+      });
+    }
   }
 
   /// Sets the playback speed.
